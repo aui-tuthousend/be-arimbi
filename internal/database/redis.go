@@ -1,17 +1,23 @@
 package database
 
 import (
-    "context"
-    "github.com/redis/go-redis/v9"
+	"context"
+    "os"
+    "log"
+
+	"github.com/redis/go-redis/v9"
 )
 
-var ctx = context.Background()
-
-func InitDragonflyClient() *redis.Client {
+func InitRedisClient() (*redis.Client, context.Context) {
+    dsn := os.Getenv("REDIS_URL")
+    if dsn == "" {
+        log.Fatal("Redis client is not set")
+        return nil, nil
+    }
     rdb := redis.NewClient(&redis.Options{
-        Addr:     "localhost:6379", 
-        Password: "",               
-        DB:       0,                
+        Addr:     dsn,
+        Password: "",
+        DB:       0,
     })
-    return rdb
+    return rdb, context.Background()
 }

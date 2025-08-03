@@ -3,13 +3,14 @@
 
 package container
 
-
 import (
 	"be-arimbi/internal/features/auth"
 	"be-arimbi/internal/features/role"
 	"be-arimbi/internal/features/user"
+	"context"
 
 	"github.com/google/wire"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
@@ -32,7 +33,7 @@ var userSet = wire.NewSet(
 )
 
 
-func InitApp(db *gorm.DB) *AppContainer {
+func InitApp(db *gorm.DB, rdb *redis.Client, ctx context.Context) *AppContainer {
 	wire.Build(
 		userSet,
 		roleSet,

@@ -1,4 +1,4 @@
-# Go Project with Google Wire Dependency Injection
+# Arimbi Backend Using Go Fiber + Google Wire + GORM + Redis + JWT + Postgresql
 
 This project uses [Google Wire](https://github.com/google/wire) for compile-time dependency injection in Go.
 

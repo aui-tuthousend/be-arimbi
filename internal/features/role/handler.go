@@ -18,13 +18,13 @@ func (rh *RoleHandler) GetAll() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		roles, err := rh.rs.GetAll()
 		if err != nil {
-			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+			return c.Status(500).JSON(utils.ErrorResponse[error](500, err.Error()))
 		}
-		return c.JSON(roles)
+		return c.JSON(utils.SuccessResponse(&roles))
 	}
 }
 
 func RegisterRoute(api fiber.Router, Handler *RoleHandler) {
-	group := api.Group("/role", utils.JWTProtected())
+	group := api.Group("/role")
 	group.Get("/", Handler.GetAll())
 }

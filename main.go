@@ -33,8 +33,11 @@ func main() {
 	}))
 
 	db := database.Connect()
-	c := container.InitApp(db)
-	routes.SetupRoutes(app, c)
+	rdb, ctx := database.InitRedisClient()
+	c := container.InitApp(db, rdb, ctx)
+	routes.ProtectedRoutes(app, c)
+	routes.PublicRoutes(app, c)
+
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("sup ni99a")
 	})

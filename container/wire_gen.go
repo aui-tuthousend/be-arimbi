@@ -10,13 +10,15 @@ import (
 	"be-arimbi/internal/features/auth"
 	"be-arimbi/internal/features/role"
 	"be-arimbi/internal/features/user"
+	"context"
 	"github.com/google/wire"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
 // Injectors from wire.go:
 
-func InitApp(db *gorm.DB) *AppContainer {
+func InitApp(db *gorm.DB, rdb *redis.Client, ctx context.Context) *AppContainer {
 	authRepository := auth.NewAuthRepository(db)
 	userRepository := user.NewUserRepository(db)
 	roleRepository := role.NewRoleRepository(db)

@@ -1,0 +1,16 @@
+root = "."
+testdata_dir = "testdata"
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o ./tmp/main ."
+  bin = "tmp/main"
+  full_bin = "tmp/main"
+  dir = "."
+  include_ext = ["go"]
+  exclude_dir = ["assets", "tmp", "vendor", "testdata"]
+  run_after_build = "chmod +x main"
+  delay = 5000
+
+[log]
+  level = "debug"
