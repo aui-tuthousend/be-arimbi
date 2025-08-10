@@ -6,7 +6,8 @@ import (
 
     "be-arimbi/internal/features/user"
     "be-arimbi/internal/features/role"
-
+    "be-arimbi/internal/features/item"
+    "be-arimbi/internal/features/detailitem"
 	"gorm.io/gorm"
     "gorm.io/driver/postgres"
 
@@ -29,6 +30,8 @@ func Connect() *gorm.DB {
 		db.AutoMigrate(
 			&role.Role{},
 			&user.User{},
+			&item.Item{},
+			&detailitem.DetailItem{},
 		)
     }
 

@@ -8,7 +8,7 @@ import (
 )
 
 type UserRepository interface {
-	GetAll() ([]UserResponse, error)
+	GetAll() (*[]UserResponse, error)
 	UpdateUser(user User) (*User, error)
 	FindUserByUuid(uuid uuid.UUID) (*User, error)
 	FindUserByEmail(email string) (*User, error)
@@ -22,7 +22,7 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	return &UserRepositoryImpl{DB: db}
 }
 
-func (ur *UserRepositoryImpl) GetAll() ([]UserResponse, error) {
+func (ur *UserRepositoryImpl) GetAll() (*[]UserResponse, error) {
 	var jsonData *string
 
 	query := `
@@ -47,12 +47,12 @@ func (ur *UserRepositoryImpl) GetAll() ([]UserResponse, error) {
 	}
 	users := []UserResponse{}
 	if jsonData == nil {
-		return users, nil
+		return nil, nil
 	}
 	if err := json.Unmarshal([]byte(*jsonData), &users); err != nil {
 		return nil, err
 	}
-	return users, nil
+	return &users, nil
 }
 
 

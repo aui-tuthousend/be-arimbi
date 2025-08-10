@@ -7,7 +7,7 @@ import (
 )
 
 type RoleService interface {
-	GetAll() ([]RoleResponse, error)
+	GetAll() (*[]RoleResponse, error)
 	GetByUuid(id string) (*RoleResponse, error)
 }
 
@@ -19,7 +19,7 @@ func NewRoleService(rr RoleRepository) RoleService {
 	return &RoleServiceImpl{rr: rr}
 }
 
-func (rs *RoleServiceImpl) GetAll() ([]RoleResponse, error) {
+func (rs *RoleServiceImpl) GetAll() (*[]RoleResponse, error) {
 
 	roles, err := rs.rr.GetAll()
 	if err != nil {

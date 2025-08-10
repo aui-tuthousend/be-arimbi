@@ -8,6 +8,8 @@ package container
 
 import (
 	"be-arimbi/internal/features/auth"
+	"be-arimbi/internal/features/detailitem"
+	"be-arimbi/internal/features/item"
 	"be-arimbi/internal/features/role"
 	"be-arimbi/internal/features/user"
 	"context"
@@ -28,15 +30,27 @@ func InitApp(db *gorm.DB, rdb *redis.Client, ctx context.Context) *AppContainer 
 	roleHandler := role.NewRoleHandler(roleService)
 	userService := user.NewUserService(userRepository)
 	userHandler := user.NewUserHandler(userService)
+	itemRepository := item.NewItemRepository(db)
+	itemService := item.NewItemService(itemRepository)
+	itemHandler := item.NewItemHandler(itemService)
+	detailItemRepository := detailitem.NewDetailItemRepository(db)
+	detailItemService := detailitem.NewDetailItemService(detailItemRepository)
+	detailItemHandler := detailitem.NewDetailItemHandler(detailItemService)
 	appContainer := &AppContainer{
-		AuthHandler: authHandler,
-		RoleHandler: roleHandler,
-		UserHandler: userHandler,
+		AuthHandler:       authHandler,
+		RoleHandler:       roleHandler,
+		UserHandler:       userHandler,
+		ItemHandler:       itemHandler,
+		DetailItemHandler: detailItemHandler,
 	}
 	return appContainer
 }
 
 // wire.go:
+
+var detailItemSet = wire.NewSet(detailitem.NewDetailItemRepository, detailitem.NewDetailItemService, detailitem.NewDetailItemHandler)
+
+var itemSet = wire.NewSet(item.NewItemRepository, item.NewItemService, item.NewItemHandler)
 
 var roleSet = wire.NewSet(role.NewRoleRepository, role.NewRoleService, role.NewRoleHandler)
 

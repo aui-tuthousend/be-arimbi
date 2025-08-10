@@ -8,7 +8,7 @@ import (
 )
 
 type UserService interface {
-	GetAll() ([]UserResponse, error)
+	GetAll() (*[]UserResponse, error)
 	UpdateUser(req UserUpdateRequest) (*User, error)
 }
 
@@ -20,7 +20,7 @@ func NewUserService(ur UserRepository) UserService {
 	return &UserServiceImpl{ur: ur}
 }
 
-func (us *UserServiceImpl) GetAll() ([]UserResponse, error) {
+func (us *UserServiceImpl) GetAll() (*[]UserResponse, error) {
 	return us.ur.GetAll()
 }
 
