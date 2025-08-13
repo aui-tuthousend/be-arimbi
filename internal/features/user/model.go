@@ -21,6 +21,13 @@ type User struct {
 	Role role.Role `gorm:"foreignKey:RoleUuid;references:Uuid;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }
 
+type UserLoginResponse struct {
+	Uuid        uuid.UUID `json:"uuid"`
+	Name        string    `json:"name"`
+	Email       string    `json:"email"`
+	Role        string `json:"role"`
+}
+
 type UserResponse struct {
 	Uuid        uuid.UUID `json:"uuid"`
 	Name        string    `json:"name"`

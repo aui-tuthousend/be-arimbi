@@ -21,7 +21,7 @@ func (ah *AuthHandler) Login() fiber.Handler {
 		if err := c.BodyParser(&req); err != nil {
 			return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
 		}
-		loginResponse, err := ah.authService.Login(req)
+		loginResponse, err := ah.authService.Login(&req)
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 		}

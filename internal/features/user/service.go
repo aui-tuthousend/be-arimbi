@@ -30,7 +30,7 @@ func (us *UserServiceImpl) UpdateUser(req UserUpdateRequest) (*User, error) {
 	if err != nil {
 		return nil, errors.New("invalid uuid")
 	}
-	user, err := us.ur.FindUserByUuid(parsedUuid)
+	user, err := us.ur.FindUserByUuid(&parsedUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -46,5 +46,5 @@ func (us *UserServiceImpl) UpdateUser(req UserUpdateRequest) (*User, error) {
 		user.Password = hashedPassword
 	}
 
-	return us.ur.UpdateUser(*user)
+	return us.ur.UpdateUser(user)
 }

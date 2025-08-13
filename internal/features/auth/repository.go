@@ -14,10 +14,10 @@ import (
 
 type AuthRepository interface {
 	// Login(req LoginRequest) (LoginResponse, error)
-	CheckPasswordHash(password, hash string) bool
-	GenerateJWT(userID uuid.UUID, role string) (string, error)
+	CheckPasswordHash(password *string, hash *string) bool
+	GenerateJWT(userID *uuid.UUID, role *string) (string, error)
 	RegisterUser(req *user.User) error
-	FindUserByEmail(email string) (*user.User, error)
+	FindUserByEmail(email *string) (*user.User, error)
 }
 
 type AuthRepositoryImpl struct {
@@ -28,11 +28,11 @@ func NewAuthRepository(db *gorm.DB) AuthRepository {
 	return &AuthRepositoryImpl{DB: db}
 }
 
-func (ar *AuthRepositoryImpl) CheckPasswordHash(password, hash string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
+func (ar *AuthRepositoryImpl) CheckPasswordHash(password *string, hash *string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(*hash), []byte(*password)) == nil
 }
 
-func (ar *AuthRepositoryImpl) GenerateJWT(userID uuid.UUID, role string) (string, error) {
+func (ar *AuthRepositoryImpl) GenerateJWT(userID *uuid.UUID, role *string) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":  userID.String(),
 		"role": role,
@@ -47,9 +47,9 @@ func (ar *AuthRepositoryImpl) RegisterUser(req *user.User) error {
 	return ar.DB.Create(req).Error
 }
 
-func (ar *AuthRepositoryImpl) FindUserByEmail(email string) (*user.User, error) {
+func (ar *AuthRepositoryImpl) FindUserByEmail(email *string) (*user.User, error) {
 	var user user.User
-	result := ar.DB.Raw("SELECT * FROM users WHERE email = ? LIMIT 1", email).Scan(&user)
+	result := ar.DB.Raw("SELECT * FROM users WHERE email = ? LIMIT 1", *email).Scan(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}

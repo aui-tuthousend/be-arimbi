@@ -86,7 +86,7 @@ func (ih *DetailItemHandler) UpdateDetailItem() fiber.Handler {
 }
 
 func RegisterRoute(api fiber.Router, Handler *DetailItemHandler) {
-	group := api.Group("/detail-item")
+	group := api.Group("/detail-product")
 	group.Get("/:uuid", Handler.GetByUuid())
 	group.Post("/", Handler.CreateDetailItem(), utils.JWTProtected())
 	group.Put("/", Handler.UpdateDetailItem(), utils.JWTProtected())

@@ -38,6 +38,7 @@ func main() {
 	routes.ProtectedRoutes(app, c)
 	routes.PublicRoutes(app, c)
 
+	app.Static("/uploads", "./uploads")
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("sup ni99a")
 	})

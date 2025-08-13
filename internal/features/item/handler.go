@@ -96,7 +96,7 @@ func (ih *ItemHandler) UpdateItem() fiber.Handler {
 }
 
 func RegisterRoute(api fiber.Router, Handler *ItemHandler) {
-	group := api.Group("/item")
+	group := api.Group("/product")
 	group.Get("/", Handler.GetAll())
 	group.Get("/:uuid", Handler.GetByUuid())
 	group.Post("/", Handler.CreateItem(), utils.JWTProtected())

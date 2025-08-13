@@ -9,9 +9,9 @@ import (
 
 type UserRepository interface {
 	GetAll() (*[]UserResponse, error)
-	UpdateUser(user User) (*User, error)
-	FindUserByUuid(uuid uuid.UUID) (*User, error)
-	FindUserByEmail(email string) (*User, error)
+	UpdateUser(user *User) (*User, error)
+	FindUserByUuid(uuid *uuid.UUID) (*User, error)
+	FindUserByEmail(email *string) (*User, error)
 }
 
 type UserRepositoryImpl struct {
@@ -56,7 +56,7 @@ func (ur *UserRepositoryImpl) GetAll() (*[]UserResponse, error) {
 }
 
 
-func (ur *UserRepositoryImpl) UpdateUser(user User) (*User, error) {
+func (ur *UserRepositoryImpl) UpdateUser(user *User) (*User, error) {
 	result := ur.DB.Save(&user)
 	if result.Error != nil {
 		return nil, result.Error
@@ -64,10 +64,10 @@ func (ur *UserRepositoryImpl) UpdateUser(user User) (*User, error) {
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
-	return &user, nil
+	return user, nil
 }
 
-func (ur *UserRepositoryImpl) FindUserByUuid(uuid uuid.UUID) (*User, error) {
+func (ur *UserRepositoryImpl) FindUserByUuid(uuid *uuid.UUID) (*User, error) {
 	var user User
 	result := ur.DB.Raw("SELECT * FROM users WHERE uuid = ? LIMIT 1", uuid).Scan(&user)
 	if result.Error != nil {
@@ -79,7 +79,7 @@ func (ur *UserRepositoryImpl) FindUserByUuid(uuid uuid.UUID) (*User, error) {
 	return &user, nil
 }
 
-func (ur *UserRepositoryImpl) FindUserByEmail(email string) (*User, error) {
+func (ur *UserRepositoryImpl) FindUserByEmail(email *string) (*User, error) {
 	var user User
 	result := ur.DB.Raw("SELECT * FROM users WHERE email = ? LIMIT 1", email).Scan(&user)
 	if result.Error != nil {

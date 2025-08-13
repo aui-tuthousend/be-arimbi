@@ -11,7 +11,7 @@ import (
 )
 
 type AuthService interface {
-	Login(req LoginRequest) (LoginResponse, error)
+	Login(req *LoginRequest) (LoginResponse, error)
 	RegisterUser(req user.UserRequest) error
 }
 
@@ -25,28 +25,35 @@ func NewAuthService(ar AuthRepository, ur user.UserRepository, rr role.RoleRepos
 	return &AuthServiceImpl{ar: ar, ur: ur, rr: rr}
 }
 
-func (as *AuthServiceImpl) Login(req LoginRequest) (LoginResponse, error) {
-	user, err := as.ar.FindUserByEmail(req.Email)
+func (as *AuthServiceImpl) Login(req *LoginRequest) (LoginResponse, error) {
+	existingUser, err := as.ar.FindUserByEmail(&req.Email)
 	if err != nil {
 		return LoginResponse{}, err
 	}
-	if user == nil {
+	if existingUser == nil {
 		return LoginResponse{}, errors.New("user not found")
 	}
-	if !as.ar.CheckPasswordHash(req.Password, user.Password) {
+	if !as.ar.CheckPasswordHash(&req.Password, &existingUser.Password) {
 		return LoginResponse{}, errors.New("wrong password")
 	}
 
-	role, err := as.rr.GetByUuid(user.RoleUuid)
+	existingRole, err := as.rr.GetByUuid(existingUser.RoleUuid)
 	if err != nil {
 		return LoginResponse{}, err
 	}
 
-	token, err := as.ar.GenerateJWT(user.Uuid, role.Name)
+	token, err := as.ar.GenerateJWT(&existingUser.Uuid, &existingRole.Name)
 	if err != nil {
 		return LoginResponse{}, err
 	}
-	return LoginResponse{Token: token}, nil
+
+	userResponse := user.UserLoginResponse{
+		Uuid: existingUser.Uuid,
+		Name: existingUser.Name,
+		Email: existingUser.Email,
+		Role: existingRole.Name,
+	}
+	return LoginResponse{Token: token, User: userResponse}, nil
 }
 
 func (as *AuthServiceImpl) RegisterUser(req user.UserRequest) error {
@@ -59,7 +66,7 @@ func (as *AuthServiceImpl) RegisterUser(req user.UserRequest) error {
 		return errors.New("role not found")
 	}
 
-	isUserExist, err := as.ur.FindUserByEmail(req.Email)
+	isUserExist, err := as.ur.FindUserByEmail(&req.Email)
 	if err != nil {
 		return err
 	}
