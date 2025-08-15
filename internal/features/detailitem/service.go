@@ -11,8 +11,8 @@ import (
 
 type DetailItemService interface {
 	GetByUuid(id string) (*item.DetailItemResponse, error)
-	CreateDetailItem(req DetailItemRequest, path string) (*DetailItem, error)
-	UpdateDetailItem(req DetailItemUpdateRequest, newPath string) (*DetailItem, error)
+	CreateDetailItem(req DetailItemRequest, path string) (*item.DetailItemResponse, error)
+	UpdateDetailItem(req DetailItemUpdateRequest, newPath string) (*item.DetailItemResponse, error)
 }
 
 type DetailItemServiceImpl struct {
@@ -46,14 +46,14 @@ func (dis *DetailItemServiceImpl) GetByUuid(id string) (*item.DetailItemResponse
 }
 
 
-func (dis *DetailItemServiceImpl) CreateDetailItem(req DetailItemRequest, path string) (*DetailItem, error) {
+func (dis *DetailItemServiceImpl) CreateDetailItem(req DetailItemRequest, path string) (*item.DetailItemResponse, error) {
 
 	parsedUuid, err := uuid.Parse(req.ItemUuid)
 	if err != nil {
 		return nil, errors.New("invalid uuid")
 	}
 
-	item := DetailItem {
+	detailItem := DetailItem {
 		Uuid: uuid.New(),
 		Name: req.Name,
 		Description: req.Description,
@@ -64,33 +64,60 @@ func (dis *DetailItemServiceImpl) CreateDetailItem(req DetailItemRequest, path s
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	return dis.dir.CreateDetailItem(item)
+
+	createdItem, err := dis.dir.CreateDetailItem(detailItem)
+	if err != nil {
+		return nil, err
+	}
+
+	response := item.DetailItemResponse {
+		Uuid: createdItem.Uuid,
+		Name: createdItem.Name,
+		Description: createdItem.Description,
+		Variant: createdItem.Variant,
+		Stocks: createdItem.Stocks,
+		Image: createdItem.Image,
+	}
+	return &response, nil
 }
 
-func (dis *DetailItemServiceImpl) UpdateDetailItem(req DetailItemUpdateRequest, newPath string) (*DetailItem, error) {
+func (dis *DetailItemServiceImpl) UpdateDetailItem(req DetailItemUpdateRequest, newPath string) (*item.DetailItemResponse, error) {
 
 	parsedUuid, err := uuid.Parse(req.Uuid)
 	if err != nil {
 		return nil, errors.New("invalid uuid")
 	}
 	
-	item, err := dis.dir.GetByUuid(parsedUuid)
+	detailItem, err := dis.dir.GetByUuid(parsedUuid)
 	if err != nil {
 		return nil, errors.New("detail item not found")
 	}
 
 	if newPath != "" {
-		if err := os.Remove(item.Image); err != nil && !os.IsNotExist(err) {
+		if err := os.Remove(detailItem.Image); err != nil && !os.IsNotExist(err) {
 			return nil, errors.New("failed to remove old image: " + err.Error())
 		}
-		item.Image = newPath
+		detailItem.Image = newPath
 	}
 
-	item.Name = req.Name
-	item.Description = req.Description
-	item.Variant = req.Variant
-	item.Stocks = req.Stocks
-	item.UpdatedAt = time.Now()
+	detailItem.Name = req.Name
+	detailItem.Description = req.Description
+	detailItem.Variant = req.Variant
+	detailItem.Stocks = req.Stocks
+	detailItem.UpdatedAt = time.Now()
 
-	return dis.dir.UpdateDetailItem(*item)
+	updatedItem, err := dis.dir.UpdateDetailItem(*detailItem)
+	if err != nil {
+		return nil, err
+	}
+
+	response := item.DetailItemResponse {
+		Uuid: updatedItem.Uuid,
+		Name: updatedItem.Name,
+		Description: updatedItem.Description,
+		Variant: updatedItem.Variant,
+		Stocks: updatedItem.Stocks,
+		Image: updatedItem.Image,
+	}
+	return &response, nil
 }

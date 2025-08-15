@@ -11,8 +11,8 @@ import (
 type ItemService interface {
 	GetAll() (*[]ItemResponseWithDetails, error)
 	GetByUuid(id string) (*ItemResponse, error)
-	CreateItem(req ItemRequest, fullPath string) (*Item, error)
-	UpdateItem(req ItemUpdateRequest, newPath string) (*Item, error)
+	CreateItem(req ItemRequest, fullPath string) (*ItemResponse, error)
+	UpdateItem(req ItemUpdateRequest, newPath string) (*ItemResponse, error)
 }
 
 type ItemServiceImpl struct {
@@ -53,7 +53,7 @@ func (is *ItemServiceImpl) GetByUuid(id string) (*ItemResponse, error) {
 	return &response, nil
 }
 
-func (is *ItemServiceImpl) CreateItem(req ItemRequest, fullPath string) (*Item, error) {
+func (is *ItemServiceImpl) CreateItem(req ItemRequest, fullPath string) (*ItemResponse, error) {
 
 	item := Item {
 		Uuid:        uuid.New(),
@@ -65,10 +65,22 @@ func (is *ItemServiceImpl) CreateItem(req ItemRequest, fullPath string) (*Item, 
 		UpdatedAt:   time.Now(),
 	}
 
-	return is.ir.CreateItem(item)
+	createdItem, err := is.ir.CreateItem(item)
+	if err != nil {
+		return nil, err
+	}
+
+	response := ItemResponse {
+		Uuid: createdItem.Uuid,
+		Name: createdItem.Name,
+		Description: createdItem.Description,
+		Price: createdItem.Price,
+		Image: createdItem.Image,
+	}
+	return &response, nil
 }
 
-func (is *ItemServiceImpl) UpdateItem(req ItemUpdateRequest, newPath string) (*Item, error) {
+func (is *ItemServiceImpl) UpdateItem(req ItemUpdateRequest, newPath string) (*ItemResponse, error) {
 
 	parsedUuid, err := uuid.Parse(req.Uuid)
 	if err != nil {
@@ -92,5 +104,17 @@ func (is *ItemServiceImpl) UpdateItem(req ItemUpdateRequest, newPath string) (*I
 	item.Price = req.Price
 	item.UpdatedAt = time.Now()
 
-	return is.ir.UpdateItem(*item)
+	updatedItem, err := is.ir.UpdateItem(*item)
+	if err != nil {
+		return nil, err
+	}
+
+	response := ItemResponse {
+		Uuid: updatedItem.Uuid,
+		Name: updatedItem.Name,
+		Description: updatedItem.Description,
+		Price: updatedItem.Price,
+		Image: updatedItem.Image,
+	}
+	return &response, nil
 }

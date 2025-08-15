@@ -1,6 +1,7 @@
 # Binaries
 app/
 /tmp/
+uploads/
 *.log
 *.exe
 *.out

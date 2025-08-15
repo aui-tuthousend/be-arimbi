@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -30,9 +31,20 @@ func (ih *DetailItemHandler) GetByUuid() fiber.Handler {
 
 func (ih *DetailItemHandler) CreateDetailItem() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var req DetailItemRequest
-		if err := c.BodyParser(&req); err != nil {
-			return c.Status(400).JSON(utils.ErrorResponse[error](400, err.Error()))
+		stocks, err := strconv.Atoi(c.FormValue("stock"))
+		if err != nil {
+			return c.Status(400).JSON(utils.ErrorResponse[error](400, "stocks is required"))
+		}
+		req := DetailItemRequest{
+			Name:        c.FormValue("name"),
+			Description: c.FormValue("description"),
+			Variant:     c.FormValue("variant"),
+			Stocks:      stocks,
+			ItemUuid:    c.FormValue("item_uuid"),
+		}
+
+		if req.ItemUuid == "" {
+			return c.Status(400).JSON(utils.ErrorResponse[error](400, "item_uuid is required"))
 		}
 
 		file, err := c.FormFile("image")
@@ -41,7 +53,7 @@ func (ih *DetailItemHandler) CreateDetailItem() fiber.Handler {
 		}
 
 		uploadDir := "./uploads"
-		filename := fmt.Sprintf("%s-%s", file.Filename, "detail")
+		filename := fmt.Sprintf("detail-%s-%s", req.Name, file.Filename)
 		fullPath := filepath.Join(uploadDir, filename)
 
 		if err := c.SaveFile(file, fullPath); err != nil {
@@ -58,9 +70,20 @@ func (ih *DetailItemHandler) CreateDetailItem() fiber.Handler {
 
 func (ih *DetailItemHandler) UpdateDetailItem() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var req DetailItemUpdateRequest
-		if err := c.BodyParser(&req); err != nil {
-			return c.Status(400).JSON(utils.ErrorResponse[error](400, "Invalid request"))
+		stocks, err := strconv.Atoi(c.FormValue("stock"))
+		if err != nil {
+			return c.Status(400).JSON(utils.ErrorResponse[error](400, "stocks is required"))
+		}
+		req := DetailItemUpdateRequest{
+			Uuid:        c.FormValue("uuid"),
+			Name:        c.FormValue("name"),
+			Description: c.FormValue("description"),
+			Variant:     c.FormValue("variant"),
+			Stocks:      stocks,
+		}
+
+		if req.Uuid == "" {
+			return c.Status(400).JSON(utils.ErrorResponse[error](400, "uuid is required"))
 		}
 
 		newPath := ""
@@ -69,7 +92,7 @@ func (ih *DetailItemHandler) UpdateDetailItem() fiber.Handler {
 			log.Println("image is nil")
 		} else {
 			uploadDir := "./uploads"
-			filename := fmt.Sprintf("%s-%s", file.Filename, "detail")
+			filename := fmt.Sprintf("detail-%s-%s", req.Name, file.Filename)
 			newPath = filepath.Join(uploadDir, filename)
 
 			if err := c.SaveFile(file, newPath); err != nil {
@@ -86,7 +109,7 @@ func (ih *DetailItemHandler) UpdateDetailItem() fiber.Handler {
 }
 
 func RegisterRoute(api fiber.Router, Handler *DetailItemHandler) {
-	group := api.Group("/detail-product")
+	group := api.Group("/product-detail")
 	group.Get("/:uuid", Handler.GetByUuid())
 	group.Post("/", Handler.CreateDetailItem(), utils.JWTProtected())
 	group.Put("/", Handler.UpdateDetailItem(), utils.JWTProtected())

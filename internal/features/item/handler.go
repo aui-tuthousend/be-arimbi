@@ -52,7 +52,7 @@ func (ih *ItemHandler) CreateItem() fiber.Handler {
 		}
 
 		uploadDir := "./uploads"
-		filename := fmt.Sprintf("%s-cover-%s", req.Name, file.Filename)
+		filename := fmt.Sprintf("cover-%s-%s", req.Name, file.Filename)
 		fullPath := filepath.Join(uploadDir, filename)
 
 		if err := c.SaveFile(file, fullPath); err != nil {
@@ -73,9 +73,15 @@ func (ih *ItemHandler) CreateItem() fiber.Handler {
 
 func (ih *ItemHandler) UpdateItem() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var req ItemUpdateRequest
-		if err := c.BodyParser(&req); err != nil {
-			return c.Status(400).JSON(utils.ErrorResponse[error](400, "Invalid request"))
+		req := ItemUpdateRequest{
+			Uuid:        c.FormValue("uuid"),
+			Name:        c.FormValue("name"),
+			Description: c.FormValue("description"),
+			Price:       c.FormValue("price"),
+		}
+
+		if req.Uuid == "" {
+			return c.Status(400).JSON(utils.ErrorResponse[error](400, "uuid is required"))
 		}
 
 		newPath := ""
@@ -84,7 +90,7 @@ func (ih *ItemHandler) UpdateItem() fiber.Handler {
 			log.Println("file is nil")
 		} else {
 			uploadDir := "./uploads"
-			filename := fmt.Sprintf("%s-%s", file.Filename, "cover")
+			filename := fmt.Sprintf("cover-%s-%s", req.Name, file.Filename)
 			newPath = filepath.Join(uploadDir, filename)
 
 			if err := c.SaveFile(file, newPath); err != nil {
