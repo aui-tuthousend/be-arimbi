@@ -40,9 +40,10 @@ func (ih *ItemHandler) GetByUuid() fiber.Handler {
 
 func (ih *ItemHandler) CreateItem() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var req ItemRequest
-		if err := c.BodyParser(&req); err != nil {
-			return c.Status(400).JSON(utils.ErrorResponse[error](400, "Invalid request"))
+		req := ItemRequest{
+			Name:        c.FormValue("name"),
+			Description: c.FormValue("description"),
+			Price:       c.FormValue("price"),
 		}
 
 		file, err := c.FormFile("image")
@@ -51,20 +52,24 @@ func (ih *ItemHandler) CreateItem() fiber.Handler {
 		}
 
 		uploadDir := "./uploads"
-		filename := fmt.Sprintf("%s-%s", file.Filename, "cover")
+		filename := fmt.Sprintf("%s-cover-%s", req.Name, file.Filename)
 		fullPath := filepath.Join(uploadDir, filename)
 
 		if err := c.SaveFile(file, fullPath); err != nil {
 			return c.Status(500).JSON(utils.ErrorResponse[error](500, "failed to save file"))
 		}
 
+		req.Image = fullPath
+
 		item, err := ih.is.CreateItem(req, fullPath)
 		if err != nil {
 			return c.Status(500).JSON(utils.ErrorResponse[error](500, err.Error()))
 		}
+
 		return c.JSON(utils.SuccessResponse(&item))
 	}
 }
+
 
 func (ih *ItemHandler) UpdateItem() fiber.Handler {
 	return func(c *fiber.Ctx) error {
